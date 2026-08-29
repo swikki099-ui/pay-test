@@ -204,31 +204,33 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 5. Create Payment Order
-  if (req.method === "POST" && url.pathname === "/api/create") {
+  if (req.method === "POST" && (url.pathname === "/api/create" || url.pathname === "/api/v1/payment/create")) {
     const body = await readJson(req);
     return proxyGateway("POST", "/api/v1/payment/create", body, res);
   }
 
   // 6. Mobile number association
-  if (req.method === "POST" && url.pathname === "/api/mobile") {
+  if (req.method === "POST" && (url.pathname === "/api/mobile" || url.pathname === "/api/v1/payment/mobile")) {
     const body = await readJson(req);
     return proxyGateway("POST", "/api/v1/payment/mobile", body, res);
   }
 
   // 7. Order Status Polling
-  if (req.method === "GET" && url.pathname.startsWith("/api/status/")) {
-    const orderId = url.pathname.slice("/api/status/".length);
+  if (req.method === "GET" && (url.pathname.startsWith("/api/status/") || url.pathname.startsWith("/api/v1/payment/status/"))) {
+    const orderId = url.pathname.startsWith("/api/v1/payment/status/")
+      ? url.pathname.slice("/api/v1/payment/status/".length)
+      : url.pathname.slice("/api/status/".length);
     return proxyGateway("GET", `/api/v1/payment/status/${orderId}`, undefined, res);
   }
 
   // 8. Submit manual UTR
-  if (req.method === "POST" && url.pathname === "/api/submit-utr") {
+  if (req.method === "POST" && (url.pathname === "/api/submit-utr" || url.pathname === "/api/v1/payment/submit-utr")) {
     const body = await readJson(req);
     return proxyGateway("POST", "/api/v1/payment/submit-utr", body, res);
   }
 
   // 9. OCR Receipt Upload
-  if (req.method === "POST" && url.pathname === "/api/ocr-upload") {
+  if (req.method === "POST" && (url.pathname === "/api/ocr-upload" || url.pathname === "/api/v1/payment/ocr-upload")) {
     const body = await readJson(req);
     return proxyGateway("POST", "/api/v1/payment/ocr-upload", body, res);
   }
