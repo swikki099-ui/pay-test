@@ -1,5 +1,5 @@
 {
-  "gatewayUrl": "https://open-upi-pay.vercel.app",
+  "gatewayUrl": "https://pay-pl92.onrender.com",
   "port": 3001,
   "clientApiKey": "REPLACE_WITH_YOUR_CLIENT_API_KEY",
   "returnUrl": "http://localhost:3001/order-success",
