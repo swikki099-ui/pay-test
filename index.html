@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OpenUPIPay — Gateway Test</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #0f1115; color: #e8eaed; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #9aa0a6; font-size: 13px; margin-bottom: 24px; }
+  .card { background: #171a21; border: 1px solid #262b34; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: #9aa0a6; margin: 12px 0 4px; }
+  input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #333a45; background: #0f1115; color: #e8eaed; font-size: 14px; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  button { margin-top: 18px; width: 100%; padding: 12px; border: 0; border-radius: 8px; background: #1a73e8; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: #2b313b; }
+  .actions { display: flex; gap: 10px; }
+  .actions button { flex: 1; }
+  .qr { display: flex; justify-content: center; margin: 16px 0; }
+  .qr img { width: 220px; height: 220px; border-radius: 8px; background: #fff; }
+  .info { font-size: 14px; line-height: 1.6; }
+  .info b { color: #fff; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .badge.PENDING { background: #b26a00; color: #fff; }
+  .badge.PAID { background: #188038; color: #fff; }
+  .badge.EXPIRED { background: #8a1b1b; color: #fff; }
+  .log { font-family: ui-monospace, monospace; font-size: 12px; background: #0a0c10; border: 1px solid #262b34; border-radius: 8px; padding: 12px; white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
+  .hidden { display: none; }
+  .error { color: #f28b82; }
+  code { background: #262b34; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>OpenUPIPay Gateway Test</h1>
+  <div class="sub">Create a dynamic-amount order, capture the QR / UPI deep-link, then poll until the agent confirms the payment.</div>
+
+  <div class="card">
+    <label>Gateway URL</label>
+    <input id="gateway" placeholder="https://open-upi-pay.vercel.app" />
+    <div class="row">
+      <div>
+        <label>API Key (X-Client-Api-Key)</label>
+        <input id="apikey" placeholder="paste client api key" />
+      </div>
+      <div>
+        <label>Base Amount (₹)</label>
+        <input id="amount" type="number" value="1.00" step="0.01" min="0.01" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Order ID (ext)</label>
+        <input id="orderIdExt" placeholder="test-001" />
+      </div>
+      <div>
+        <label>Mobile (payer, for reconciliation)</label>
+        <input id="mobile" placeholder="9876543210" />
+      </div>
+    </div>
+    <label>Return URL (browser is redirected here after PAID)</label>
+    <input id="returnUrl" placeholder="https://your-site.com/payment/success" />
+    <button id="createBtn">Create Order</button>
+  </div>
+
+  <div id="result" class="card hidden">
+    <h2 style="font-size:16px;margin:0 0 8px">Order Ready — pay the exact amount</h2>
+    <div class="qr" id="qr"></div>
+    <div class="info">
+      <div>Status: <span id="status" class="badge PENDING">PENDING</span></div>
+      <div>Order ID: <code id="orderId"></code></div>
+      <div>Order Ext: <b id="orderExt"></b></div>
+      <div>Pay exactly: <b id="amountOut"></b></div>
+      <div>VPA: <b id="vpa"></b> (payee: <b id="payee"></b>)</div>
+      <div>Expires: <b id="expires"></b></div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Saved mobile</label>
+        <b id="mobileOut"></b>
+      </div>
+      <div>
+        <label>Hosted checkout</label>
+        <button id="openPay" class="ghost" style="margin:0">Open /pay page</button>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button id="upiLink">Open in UPI App</button>
+      <button id="openReturn" class="ghost">Open Return URL</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Activity log</label>
+    <div class="log" id="log"></div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const log = document.getElementById("log");
+const GATEWAY_DEFAULT = "https://open-upi-pay.vercel.app";
+$("gateway").value = GATEWAY_DEFAULT;
+
+let pollTimer = null;
+let currentOrderId = null;
+let lastStatus = null;
+
+function appendLog(msg, isErr) {
+  const line = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  log.textContent = (log.textContent ? log.textContent + "\n" : "") + line;
+  log.scrollTop = log.scrollHeight;
+  if (isErr) console.error(line); else console.log(line);
+}
+
+function apiKey() { return $("apikey").value.trim(); }
+
+async function createOrder() {
+  const amount = parseFloat($("amount").value);
+  const orderIdExt = $("orderIdExt").value.trim() || ("test-" + Date.now().toString().slice(-6));
+  const returnUrl = $("returnUrl").value.trim() || undefined;
+  const body = {
+    baseAmount: amount,
+    orderIdExt,
+    ...(returnUrl ? { returnUrl } : {}),
+  };
+
+  appendLog(`POST /api/v1/payment/create → ${JSON.stringify(body)}`);
+  $("createBtn").disabled = true;
+  try {
+    const res = await fetch("/api/create", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-client-api-key": apiKey() },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || ("HTTP " + res.status));
+    appendLog(`✅ order created: ${json.data.orderId} · pay ₹${json.data.dynamicAmount}`);
+
+    currentOrderId = json.data.orderId;
+    $("orderId").textContent = json.data.orderId;
+    $("orderExt").textContent = json.data.orderIdExt;
+    $("amountOut").textContent = "₹" + json.data.dynamicAmount + " (base ₹" + json.data.baseAmount + ")";
+    $("vpa").textContent = json.data.vpa;
+    $("payee").textContent = json.data.payeeName || "—";
+    $("expires").textContent = new Date(json.data.expiresAt).toLocaleString();
+    $("qr").innerHTML = `<img src="${json.data.qrCodeDataUrl}" alt="UPI QR" />`;
+    $("result").classList.remove("hidden");
+    setStatus("PENDING");
+
+    // Store the payer's mobile if provided (reconciliation aid)
+    const mobile = $("mobile").value.trim();
+    if (mobile) {
+      const mr = await fetch("/api/mobile", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ orderId: currentOrderId, mobile }),
+      });
+      const mj = await mr.json();
+      appendLog(mj.success
+        ? `📱 saved mobile ${mobile}`
+        : `⚠ mobile save failed: ${(mj.error || "HTTP " + mr.status)}`, !mj.success);
+      $("mobileOut").textContent = mj.success ? mobile : ("failed → " + (mj.error || mr.status));
+    } else {
+      $("mobileOut").textContent = "not provided";
+    }
+
+    window.orderData = json.data;
+    startPolling();
+  } catch (err) {
+    appendLog("❌ " + err.message, true);
+  } finally {
+    $("createBtn").disabled = false;
+  }
+}
+
+async function pollStatus() {
+  if (!currentOrderId) return;
+  try {
+    const res = await fetch("/api/status/" + currentOrderId);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || ("HTTP " + res.status));
+    setStatus(json.data.status);
+    if (json.data.status !== lastStatus) {
+      appendLog(`status → ${json.data.status}`);
+      lastStatus = json.data.status;
+    }
+    if (json.data.status === "PAID") {
+      clearInterval(pollTimer);
+      appendLog("🎉 PAID confirmed!");
+      const rl = $("returnUrl").value.trim();
+      if (rl) { appendLog(`redirecting to returnUrl → ${rl}`); setTimeout(() => location.assign(rl), 800); }
+    } else if (json.data.status === "EXPIRED") {
+      clearInterval(pollTimer);
+      appendLog("⚠ order expired — no confirmation received");
+    }
+  } catch (err) {
+    appendLog("poll error: " + err.message, true);
+  }
+}
+
+function startPolling() {
+  clearInterval(pollTimer);
+  lastStatus = null;
+  pollStatus();
+  pollTimer = setInterval(pollStatus, 3000);
+}
+
+function setStatus(s) {
+  const b = $("status");
+  b.className = "badge " + s;
+  b.textContent = s;
+}
+
+$("createBtn").addEventListener("click", createOrder);
+$("upiLink").addEventListener("click", () => {
+  if (window.orderData?.upiUri) window.open(window.orderData.upiUri, "_blank");
+});
+$("openPay").addEventListener("click", () => {
+  if (currentOrderId) window.open($("gateway").value.replace(/\/$/, "") + "/pay/" + currentOrderId, "_blank");
+});
+$("openReturn").addEventListener("click", () => {
+  const r = $("returnUrl").value.trim();
+  if (r) window.open(r, "_blank"); else appendLog("no return URL set");
+});
+</script>
+</body>
+</html>
