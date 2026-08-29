@@ -67,6 +67,7 @@ async function proxyGateway(method, pathname, body, res, customHeaders = {}) {
   loadConfig();
   const gateway = getGateway();
   const apiKey = getApiKey();
+  console.log(`[Proxy] ${method} ${pathname} -> ${gateway}${pathname}`);
   try {
     const headers = { "content-type": "application/json", ...customHeaders };
     if (apiKey && !headers["x-client-api-key"] && !headers["x-device-secret"]) {
