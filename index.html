@@ -1034,32 +1034,25 @@
       }
     }
 
-    async function createOrderWithFallback(payload) {
-      // 1. Try local server proxy first
-      try {
-        const res = await fetch("/api/create", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const json = await parseSafeJson(res);
-        if (res.ok && json.success && json.data) return json.data;
-      } catch(e) {}
+    function getApiBase() {
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        return '';
+      }
+      return 'http://localhost:3001';
+    }
 
-      // 2. Direct gateway fallback
-      const directRes = await fetch(`${GATEWAY_DIRECT_URL}/api/v1/payment/create`, {
+    async function createOrder(payload) {
+      const endpoint = `${getApiBase()}/api/create`;
+      const res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-client-api-key": CLIENT_API_KEY
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify(payload)
       });
-      const directJson = await parseSafeJson(directRes);
-      if (!directRes.ok || !directJson.success) {
-        throw new Error(directJson.error || directJson.detail || "Failed to create order on gateway");
+      const json = await parseSafeJson(res);
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || json.detail || `Server returned HTTP ${res.status}`);
       }
-      return directJson.data;
+      return json.data;
     }
 
     async function initiateBuyNow() {
@@ -1068,23 +1061,25 @@
       const totalAmount = PRODUCT.basePrice * qty;
 
       btn.disabled = true;
-      btn.innerHTML = `<span class="pulse-dot" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span> Redirecting to Gateway Checkout...`;
+      btn.innerHTML = `<span class="pulse-dot" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span> Redirecting to Checkout...`;
 
       try {
         const orderExt = "AMZ-" + Date.now().toString().slice(-6);
-        const order = await createOrderWithFallback({
+        const order = await createOrder({
           baseAmount: totalAmount,
           orderIdExt: orderExt,
-          returnUrl: window.location.origin + "/order-success"
+          returnUrl: (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file'))
+            ? window.location.origin + "/order-success"
+            : "http://localhost:3001/order-success"
         });
 
-        // Direct browser redirect to gateway hosted checkout page
-        const checkoutPageUrl = "https://pay-pl92.onrender.com/pay/" + order.orderId;
-        window.location.href = checkoutPageUrl;
+        // Redirect directly to gateway hosted payment page
+        const checkoutUrl = "https://pay-pl92.onrender.com/pay/" + order.orderId;
+        window.location.href = checkoutUrl;
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = `Buy Now`;
-        alert("Gateway Error: " + err.message);
+        alert("Error creating order: " + err.message);
       }
     }
 
