@@ -3,230 +3,170 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NovaStore — Checkout</title>
+<title>NovaStore</title>
 <style>
-  :root { --bg:#0f1115; --card:#181b22; --card2:#21242d; --line:#2a2f3a; --txt:#e8eaed; --sub:#9aa0a6; --accent:#4c8dff; --ok:#2ecc71; --err:#ff6b6b; --warn:#f5b942; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--txt); }
-  nav { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(15,17,21,.9); backdrop-filter:blur(6px); z-index:5; }
-  nav .logo { font-weight:800; font-size:18px; }
-  nav .logo b { color:var(--accent); }
-  nav .cart { margin-left:auto; font-size:13px; color:var(--sub); }
-  main { max-width:1024px; margin:0 auto; padding:24px 16px 80px; }
-  h1.big { font-size:26px; margin:6px 0 4px; }
-  .tag { color:var(--sub); font-size:14px; margin-bottom:24px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; flex-direction:column; }
-  .card .img { font-size:54px; text-align:center; background:linear-gradient(145deg,#1b1f28,#22262f); border-radius:12px; padding:22px 0; margin-bottom:14px; }
-  .card h3 { margin:0 0 6px; font-size:16px; }
-  .card .desc { color:var(--sub); font-size:13px; line-height:1.5; flex:1; margin-bottom:12px; }
-  .card .price { font-size:20px; font-weight:700; margin-bottom:12px; }
-  .card .price small { color:var(--sub); font-weight:400; }
-  .btn { border:0; border-radius:9px; font-size:14px; font-weight:600; padding:12px; cursor:pointer; }
-  .btn.primary { background:var(--accent); color:#fff; width:100%; }
-  .btn.primary:hover { filter:brightness(1.08); }
-  .btn.ghost { background:var(--card2); color:var(--txt); }
-  .badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
-  .badge.PENDING{background:#a06800;color:#fff;} .badge.PAID{background:var(--ok);color:#04220f;} .badge.EXPIRED{background:#7a1f1f;color:#fff;}
-
-  /* Modal */
-  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:16px; z-index:20; }
-  .overlay.open { display:flex; }
-  .modal { background:var(--card); border:1px solid var(--line); border-radius:16px; max-width:480px; width:100%; max-height:90vh; overflow:auto; padding:24px; }
-  .modal h2 { margin:0 0 4px; font-size:18px; }
-  .modal .m-sub { color:var(--sub); font-size:13px; margin-bottom:16px; }
-  .field { margin-bottom:12px; }
-  .field label { display:block; font-size:12px; color:var(--sub); margin-bottom:5px; }
-  .field input { width:100%; padding:11px 12px; border-radius:9px; border:1px solid var(--line); background:var(--bg); color:var(--txt); font-size:14px; }
-  .upi-options { display:flex; flex-direction:column; gap:8px; margin:14px 0; }
-  .urow { display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:14px; }
-  .urow .lbl { font-weight:600; }
-  .qr-wrap { display:flex; flex-direction:column; align-items:center; margin:14px 0; }
-  .qr-wrap img { width:200px; height:200px; background:#fff; border-radius:10px; }
-  .amount-line { display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-top:12px; }
-  .amount-line .a { font-size:22px; font-weight:800; }
-  .status-line { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
-  .later { font-size:12px; color:var(--sub); text-align:center; margin-top:8px; }
-
-  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--err); color:#fff; padding:11px 18px; border-radius:10px; font-size:14px; z-index:40; display:none; box-shadow:0 6px 20px rgba(0,0,0,.4); }
-  .statusbar { position:fixed; top:0; left:0; right:0; background:var(--card2); border-bottom:1px solid var(--line); display:none; padding:10px 16px; font-size:13px; z-index:15; }
-  .statusbar.open { display:block; }
-  .hidden { display:none !important; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,sans-serif;background:#0f1115;color:#e8eaed}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #2a2f3a;background:#0f1115;position:sticky;top:0;z-index:5}
+  .nav .logo{font-size:20px;font-weight:800}
+  .nav .logo span{color:#4c8dff}
+  .nav small{color:#9aa0a6;font-size:12px}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 16px 60px}
+  h1{font-size:28px;margin-bottom:6px}
+  .sub{color:#9aa0a6;margin-bottom:28px;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .card{background:#181b22;border:1px solid #2a2f3a;border-radius:14px;padding:20px;display:flex;flex-direction:column}
+  .card .img{font-size:60px;text-align:center;background:linear-gradient(145deg,#1b1f28,#22262f);border-radius:12px;padding:24px 0;margin-bottom:14px}
+  .card h3{font-size:17px;margin-bottom:6px}
+  .card .desc{color:#9aa0a6;font-size:13px;line-height:1.5;flex:1;margin-bottom:14px}
+  .card .price{font-size:22px;font-weight:700;margin-bottom:14px}
+  .card .price small{color:#9aa0a6;font-weight:400;font-size:13px}
+  .btn{border:0;border-radius:9px;font-size:14px;font-weight:600;padding:12px;cursor:pointer;width:100%}
+  .btn.blue{background:#4c8dff;color:#fff}
+  .btn.blue:hover{filter:brightness(1.1)}
+  .btn.dark{background:#21242d;color:#e8eaed}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .err{color:#ff6b6b;margin-top:12px;font-size:13px;text-align:center}
 </style>
 </head>
 <body>
-  <nav>
-    <div class="logo">Nova<b>Store</b></div>
-    <div class="cart">Secure UPI checkout demo</div>
-  </nav>
-
-  <main>
-    <h1 class="big">Our products</h1>
-    <div class="tag">Pick an item, then pay the exact dynamic amount shown at checkout.</div>
-    <div class="grid" id="grid"></div>
-  </main>
-
-  <!-- Checkout phase -->
-  <div class="overlay" id="checkoutOverlay">
-    <div class="modal">
-      <h2 id="coTitle">Confirm your order</h2>
-      <div class="m-sub" id="coSub"></div>
-      <div class="field">
-        <label>Mobile number (for payment reconciliation)</label>
-        <input id="mobile" inputmode="numeric" placeholder="10-digit Indian number" />
-      </div>
-      <button class="btn primary" id="payNow">Proceed to Pay <span id="payAmount"></span></button>
-      <button class="btn ghost" style="width:100%;margin-top:8px" id="cancelCheckout">Back to products</button>
-    </div>
+<div class="nav">
+  <div class="logo">Nova<span>Store</span></div>
+  <small>UPI checkout demo</small>
+</div>
+<div class="wrap">
+  <h1>Shop</h1>
+  <div class="sub">Pick an item, pay the exact dynamic amount via UPI.</div>
+  <div class="grid" id="grid"></div>
+  <div id="err" class="err" style="display:none"></div>
+</div>
+<div id="payModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10;display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#181b22;border:1px solid #2a2f3a;border-radius:16px;padding:24px;max-width:440px;width:100%;max-height:90vh;overflow:auto">
+    <h2 id="pmTitle" style="font-size:18px;margin-bottom:4px"></h2>
+    <div id="pmSub" style="color:#9aa0a6;font-size:13px;margin-bottom:14px"></div>
+    <div id="pmBody"></div>
+    <button class="btn dark" style="margin-top:12px" onclick="closePay()">Close</button>
   </div>
-
-  <!-- Payment phase -->
-  <div class="statusbar" id="statusbar"><span id="statusText">Waiting for payment…</span></div>
-  <div class="overlay" id="payOverlay">
-    <div class="modal">
-      <h2>Scan &amp; pay <span class="badge PENDING" id="payStatus">PENDING</span></h2>
-      <div class="m-sub" id="paySub"></div>
-      <div class="qr-wrap" id="qrWrap"></div>
-      <div class="amount-line"><span>Pay exactly</span><span class="a" id="payAmountLine"></span></div>
-      <div class="upi-options">
-        <div class="urow"><span class="lbl">UPI App</span><button class="btn ghost" id="openUpi">Open</button></div>
-        <div class="urow"><span class="lbl">Hosted checkout</span><button class="btn ghost" id="openHosted">Open</button></div>
-      </div>
-      <div class="status-line">
-        <span>Order</span>
-        <code id="orderId" style="font-size:11px;color:var(--sub)"></code>
-      </div>
-      <button class="btn ghost" style="width:100%;margin-top:14px" id="cancelPay">Cancel</button>
-      <div class="later">Your order is marked PAID automatically once the agent confirms the UPI transaction.</div>
-    </div>
-  </div>
-
-  <!-- Success phase -->
-  <div class="overlay" id="successOverlay">
-    <div class="modal" style="text-align:center">
-      <div style="font-size:64px">✅</div>
-      <h2>Order confirmed!</h2>
-      <div class="m-sub">Payment verified via the gateway.</div>
-      <div class="status-line" style="justify-content:center"><span class="badge PAID">PAID</span></div>
-      <p style="font-size:13px;color:var(--sub);margin:14px 0 0">Order: <code id="doneOrderId"></code></p>
-      <button class="btn primary" style="margin-top:16px" id="backHome">Back to shop</button>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+</div>
 
 <script>
-const $ = (id) => document.getElementById(id);
-const toast = (m) => { const t=$("toast"); t.textContent=m; t.style.display="block"; setTimeout(()=>t.style.display="none",3500); };
+const PRODUCTS = [
+  { id:"earbuds", name:"Wireless Earbuds Pro", price:1299, icon:"&#127911;", desc:"Active noise cancellation, 40h battery, Bluetooth 5.3." },
+  { id:"watch",   name:"Smartwatch Series 5",  price:2499, icon:"&#8986;",   desc:"AMOLED display, heart-rate & SpO2, 7-day battery." },
+  { id:"power",   name:"20000mAh Power Bank",  price:899,  icon:"&#128267;", desc:"22.5W fast charge, dual USB + Type-C, travel friendly." }
+];
 
-let store = { gatewayUrl:"", returnUrl:"", store:{ products:[] } };
 let currentProduct = null;
 let orderData = null;
 let pollTimer = null;
 
-const GLYPHS = { earbuds:"🎧", watch:"⌚", power:"🔋", default:"🛍️" };
-
-async function init() {
-  const r = await fetch("/api/store");
-  store = await r.json();
-  renderGrid();
-  // Prefill mobile from localStorage
-  $("mobile").value = localStorage.getItem("nb_mobile") || "";
-}
-function renderGrid() {
-  const grid = $("grid");
-  grid.innerHTML = "";
-  for (const p of store.store.products) {
-    const c = document.createElement("div");
-    c.className = "card";
-    c.innerHTML = `
-      <div class="img">${GLYPHS[p.image] || GLYPHS.default}</div>
-      <h3>${p.name}</h3>
-      <div class="desc">${p.description}</div>
-      <div class="price">₹${p.price.toLocaleString("en-IN")} <small>incl. GST</small></div>
-      <button class="btn primary" data-id="${p.id}">Buy Now</button>`;
-    c.querySelector("button").addEventListener("click", () => openCheckout(p));
-    grid.appendChild(c);
+// Render products immediately (no fetch needed)
+(function renderGrid() {
+  const g = document.getElementById("grid");
+  for (const p of PRODUCTS) {
+    g.innerHTML += `
+      <div class="card">
+        <div class="img">${p.icon}</div>
+        <h3>${p.name}</h3>
+        <div class="desc">${p.desc}</div>
+        <div class="price">₹${p.price.toLocaleString("en-IN")} <small>incl. GST</small></div>
+        <button class="btn blue" onclick="openPay('${p.id}')">Buy Now</button>
+      </div>`;
   }
+})();
+
+function showErr(m) { const e=document.getElementById("err"); e.style.display="block"; e.textContent=m; }
+function hideErr()  { document.getElementById("err").style.display="none"; }
+
+function openPay(pid) {
+  currentProduct = PRODUCTS.find(p=>p.id===pid);
+  if (!currentProduct) return;
+  document.getElementById("pmTitle").textContent = currentProduct.name;
+  document.getElementById("pmSub").textContent  = "₹" + currentProduct.price.toLocaleString("en-IN") + " · enter your mobile";
+  document.getElementById("pmBody").innerHTML = `
+    <input id="mbl" inputmode="numeric" placeholder="10-digit mobile" style="width:100%;padding:11px;border-radius:9px;border:1px solid #2a2f3a;background:#0f1115;color:#e8eaed;font-size:14px;margin-bottom:12px" />
+    <button class="btn blue" id="createBtn" onclick="createOrder()">Pay ₹${currentProduct.price.toLocaleString("en-IN")}</button>
+    <div id="pmMsg" style="margin-top:10px"></div>`;
+  document.getElementById("payModal").style.display = "flex";
 }
 
-function openCheckout(p) {
-  currentProduct = p;
-  $("coTitle").textContent = p.name;
-  $("coSub").textContent = p.description + " · ₹" + p.price.toLocaleString("en-IN");
-  $("payAmount").textContent = `· ₹${p.price.toLocaleString("en-IN")}`;
-  $("checkoutOverlay").classList.add("open");
-}
-async function payNow() {
-  const mobile = $("mobile").value.trim();
-  localStorage.setItem("nb_mobile", mobile);
-  const pid = $("payAmount"); pid.disabled = false;
-  const btn = $("payNow"); btn.disabled = true; btn.textContent = "Creating order…";
-  try {
-    const orderIdExt = `${currentProduct.id}-${Date.now().toString().slice(-6)}`;
-    const body = { baseAmount: currentProduct.price, orderIdExt, returnUrl: store.returnUrl };
-    const res = await fetch("/api/create", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body) });
-    const json = await res.json();
-    if (!res.ok || !json.success) throw new Error(json.error || ("HTTP "+res.status));
-
-    orderData = json.data;
-    orderData.mobile = mobile;
-    $("checkoutOverlay").classList.remove("open");
-    $("payOverlay").classList.add("open");
-    $("paySub").textContent = store.store.name + " · order " + orderData.orderIdExt;
-    $("payAmountLine").textContent = "₹" + orderData.dynamicAmount;
-    $("orderId").textContent = orderData.orderId;
-    $("qrWrap").innerHTML = `<img src="${orderData.qrCodeDataUrl}" alt="UPI QR" />`;
-    setStatus("PENDING");
-
-    // Save mobile for reconciliation
-    if (mobile) {
-      const mr = await fetch("/api/mobile", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ orderId: orderData.orderId, mobile }) });
-      const mj = await mr.json();
-      if (!mj.success) toast("Could not save mobile: " + (mj.error||"")); 
-    }
-    $("statusbar").classList.add("open");
-    startPolling();
-  } catch (err) {
-    toast("Order failed: " + err.message); btn.disabled = false; btn.textContent = "Proceed to Pay";
-  }
-}
-function startPolling() {
+function closePay() {
   clearInterval(pollTimer);
-  pollNow();
-  pollTimer = setInterval(pollNow, 3000);
+  document.getElementById("payModal").style.display = "none";
 }
-async function pollNow() {
+
+async function createOrder() {
+  const btn  = document.getElementById("createBtn");
+  const msg  = document.getElementById("pmMsg");
+  const mbl  = (document.getElementById("mbl")||{}).value||"";
+  btn.disabled = true; btn.textContent = "Creating order\u2026";
+  hideErr();
+  try {
+    const res = await fetch("/api/create", {
+      method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({
+        baseAmount:currentProduct.price,
+        orderIdExt: currentProduct.id+"-"+Date.now().toString().slice(-6),
+        returnUrl:"http://localhost:3001/"
+      })
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error||("HTTP "+res.status));
+    orderData = json.data;
+
+    // Save mobile
+    if (mbl.replace(/\D/g,"").length===10) {
+      fetch("/api/mobile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({orderId:orderData.orderId,mobile:mbl.replace(/\D/g,"")})});
+    }
+
+    // Show payment UI
+    msg.innerHTML = `
+      <div style="text-align:center;margin:14px 0">
+        <img src="${orderData.qrCodeDataUrl}" style="width:200px;border-radius:10px;background:#fff;padding:6px" /><br/>
+        <div style="font-size:24px;font-weight:800;margin:10px 0">₹${orderData.dynamicAmount}</div>
+        <div style="font-size:12px;color:#9aa0a6">pay this exact amount via any UPI app</div>
+      </div>
+      <a href="${orderData.upiUri}" target="_blank" class="btn blue" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">Open in UPI App</a>
+      <a href="${orderData.upiUri}" target="_blank" class="btn dark" style="text-align:center;display:block;text-decoration:none">Hosted checkout</a>
+      <div id="pollStatus" style="text-align:center;margin-top:12px;color:#9aa0a6;font-size:13px">waiting for payment\u2026</div>`;
+    btn.style.display = "none";
+
+    startPoll();
+  } catch (err) {
+    msg.innerHTML = "<div class='err'>"+err.message+"</div>";
+    btn.disabled = false; btn.textContent = "Pay \u20B9"+currentProduct.price.toLocaleString("en-IN");
+  }
+}
+
+function startPoll() {
+  clearInterval(pollTimer);
+  poll();
+  pollTimer = setInterval(poll, 3000);
+}
+
+async function poll() {
   if (!orderData) return;
   try {
     const res = await fetch("/api/status/"+orderData.orderId);
     const json = await res.json();
-    if (!json.success) throw new Error(json.error||"");
-    setStatus(json.data.status);
-    if (json.data.status === "PAID") {
+    if (!json.success) return;
+    const s = json.data.status;
+    const el = document.getElementById("pollStatus");
+    if (!el) return;
+    if (s==="PAID") {
       clearInterval(pollTimer);
-      $("statusText").textContent = "✓ Payment confirmed!";
-      setTimeout(()=>{ $("payOverlay").classList.remove("open"); $("statusbar").classList.remove("open"); showSuccess(); }, 900);
-    } else if (json.data.status === "EXPIRED") {
+      el.style.color="#2ecc71";
+      el.innerHTML="<b style='font-size:16px'>&#10003; Payment confirmed!</b><br/>Order: "+orderData.orderId.slice(0,8)+"\u2026";
+    } else if (s==="EXPIRED") {
       clearInterval(pollTimer);
-      $("statusText").textContent = "Order expired — no payment received";
-      toast("Order expired.");
+      el.style.color="#ff6b6b";
+      el.innerHTML="Order expired.";
     } else {
-      $("statusText").textContent = "Waiting for payment… (₹" + orderData.dynamicAmount + ")";
+      el.textContent="waiting for payment\u2026";
     }
-  } catch (err) { /* transient */ }
+  } catch(e) {}
 }
-function setStatus(s){ const b=$("payStatus"); b.className="badge "+s; b.textContent=s; }
-function showSuccess(){ $("doneOrderId").textContent = orderData.orderId; $("successOverlay").classList.add("open"); }
-
-$("payNow").addEventListener("click", payNow);
-$("cancelCheckout").addEventListener("click", ()=>{ $("checkoutOverlay").classList.remove("open"); });
-$("cancelPay").addEventListener("click", ()=>{ clearInterval(pollTimer); $("payOverlay").classList.remove("open"); $("statusbar").classList.remove("open"); });
-$("backHome").addEventListener("click", ()=>location.reload());
-$("openUpi").addEventListener("click", ()=>{ if(orderData?.upiUri) window.open(orderData.upiUri,"_blank"); });
-$("openHosted").addEventListener("click", ()=>{ if(orderData) window.open(store.gatewayUrl + "/pay/" + orderData.orderId, "_blank"); });
-
-init();
 </script>
 </body>
 </html>
