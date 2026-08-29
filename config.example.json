@@ -1,0 +1,38 @@
+{
+  "gatewayUrl": "https://open-upi-pay.vercel.app",
+  "port": 3001,
+  "clientApiKey": "REPLACE_WITH_YOUR_CLIENT_API_KEY",
+  "returnUrl": "http://localhost:3001/order-success",
+  "store": {
+    "name": "NovaStore",
+    "products": [
+      {
+        "id": "prod-wireless-buds",
+        "name": "Wireless Earbuds Pro",
+        "price": 1299,
+        "currency": "INR",
+        "image": "earbuds",
+        "description": "Active noise cancellation, 40h battery life, Bluetooth 5.3.",
+        "inStock": true
+      },
+      {
+        "id": "prod-smartwatch",
+        "name": "Smartwatch Series 5",
+        "price": 2499,
+        "currency": "INR",
+        "image": "watch",
+        "description": "AMOLED display, heart-rate & SpO2 tracking, 7-day battery.",
+        "inStock": true
+      },
+      {
+        "id": "prod-powerbank",
+        "name": "20000mAh Power Bank",
+        "price": 899,
+        "currency": "INR",
+        "image": "power",
+        "description": "22.5W fast charge, dual USB + Type-C, travel friendly.",
+        "inStock": true
+      }
+    ]
+  }
+}
