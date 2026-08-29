@@ -48,6 +48,20 @@ async function proxy(method, pathname, body, res, key = API_KEY) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const text = await upstream.text();
+
+    // Detect HTML error pages (Vercel 404s, Cloudflare errors, etc.)
+    const isJson = text.trimStart().startsWith("{") || text.trimStart().startsWith("[");
+    if (!isJson) {
+      const snippet = text.replace(/<[^>]+>/g, "").trim().slice(0, 200);
+      res.writeHead(upstream.status >= 400 ? upstream.status : 502, {
+        "content-type": "application/json",
+      });
+      return res.end(JSON.stringify({
+        error: `Gateway returned HTML instead of JSON (HTTP ${upstream.status})`,
+        detail: snippet,
+      }));
+    }
+
     res.writeHead(upstream.status, { "content-type": "application/json" });
     res.end(text);
   } catch (err) {
