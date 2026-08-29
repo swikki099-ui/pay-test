@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,7 +9,9 @@
   <!-- Google Fonts & Canvas Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -30,8 +33,12 @@
       --upi-green: #00d084;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: "Open Sans", "Amazon Ember", Arial, sans-serif;
       background: #ffffff;
@@ -41,8 +48,15 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    a { color: var(--amz-link); text-decoration: none; }
-    a:hover { color: var(--amz-link-hover); text-decoration: underline; }
+    a {
+      color: var(--amz-link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--amz-link-hover);
+      text-decoration: underline;
+    }
 
     /* Top Amazon Header */
     .amz-nav {
@@ -69,8 +83,18 @@
       border: 1px solid transparent;
       border-radius: 2px;
     }
-    .amz-logo-wrap:hover { border-color: #ffffff; text-decoration: none; }
-    .amz-logo-wrap span.prime { color: #febd69; font-size: 14px; margin-left: 2px; font-weight: 700; }
+
+    .amz-logo-wrap:hover {
+      border-color: #ffffff;
+      text-decoration: none;
+    }
+
+    .amz-logo-wrap span.prime {
+      color: #febd69;
+      font-size: 14px;
+      margin-left: 2px;
+      font-weight: 700;
+    }
 
     .deliver-to {
       display: flex;
@@ -83,8 +107,16 @@
       border-radius: 2px;
       cursor: pointer;
     }
-    .deliver-to:hover { border-color: #ffffff; }
-    .deliver-to strong { display: block; font-size: 13px; font-weight: 700; }
+
+    .deliver-to:hover {
+      border-color: #ffffff;
+    }
+
+    .deliver-to strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+    }
 
     .search-bar-wrap {
       flex: 1;
@@ -92,7 +124,7 @@
       height: 40px;
       border-radius: 4px;
       overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .search-select {
@@ -123,19 +155,23 @@
       justify-content: center;
       cursor: pointer;
     }
-    .search-btn:hover { background: #f3a847; }
+
+    .search-btn:hover {
+      background: #f3a847;
+    }
 
     .gateway-live-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 11px;
       color: #00d084;
     }
+
     .status-dot {
       width: 8px;
       height: 8px;
@@ -155,8 +191,15 @@
       font-size: 13px;
       font-weight: 500;
     }
-    .amz-subnav a { color: #ffffff; text-decoration: none; }
-    .amz-subnav a:hover { text-decoration: underline; }
+
+    .amz-subnav a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .amz-subnav a:hover {
+      text-decoration: underline;
+    }
 
     /* Page Container */
     .pdp-container {
@@ -171,7 +214,10 @@
       color: var(--amz-text-secondary);
       margin-bottom: 16px;
     }
-    .breadcrumbs a { color: var(--amz-text-secondary); }
+
+    .breadcrumbs a {
+      color: var(--amz-text-secondary);
+    }
 
     /* Main Product Layout (3 Columns) */
     .pdp-layout {
@@ -208,7 +254,9 @@
       font-size: 20px;
       transition: border 0.15s;
     }
-    .thumb-btn.active, .thumb-btn:hover {
+
+    .thumb-btn.active,
+    .thumb-btn:hover {
       border-color: #e77600;
       box-shadow: 0 0 3px 2px rgba(228, 121, 17, 0.4);
     }
@@ -225,7 +273,7 @@
       font-size: 140px;
       position: relative;
       user-select: none;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
     }
 
     .image-badge {
@@ -286,8 +334,17 @@
       border-radius: 2px;
       margin-bottom: 14px;
     }
-    .choice-badge span.amz { color: #febd69; font-weight: 700; }
-    .choice-badge span.choice { color: #ffffff; font-weight: 600; margin-left: 3px; }
+
+    .choice-badge span.amz {
+      color: #febd69;
+      font-weight: 700;
+    }
+
+    .choice-badge span.choice {
+      color: #ffffff;
+      font-weight: 600;
+      margin-left: 3px;
+    }
 
     /* Pricing Section */
     .price-box {
@@ -356,7 +413,13 @@
       background: #fff;
       font-size: 12px;
     }
-    .offer-card strong { display: block; color: #0f1111; font-size: 13px; margin-bottom: 2px; }
+
+    .offer-card strong {
+      display: block;
+      color: #0f1111;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
 
     /* Feature Bullets */
     .about-list {
@@ -364,14 +427,17 @@
       border-top: 1px solid #e7e7e7;
       padding-top: 16px;
     }
+
     .about-list h3 {
       font-size: 15px;
       font-weight: 700;
       margin-bottom: 8px;
     }
+
     .about-list ul {
       padding-left: 20px;
     }
+
     .about-list li {
       font-size: 13px;
       color: #0f1111;
@@ -385,7 +451,7 @@
       border-radius: 8px;
       padding: 18px;
       background: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
       position: sticky;
       top: 80px;
     }
@@ -402,7 +468,10 @@
       line-height: 1.5;
       margin-bottom: 12px;
     }
-    .delivery-info strong { color: #007185; }
+
+    .delivery-info strong {
+      color: #007185;
+    }
 
     .in-stock {
       font-size: 18px;
@@ -425,7 +494,7 @@
       border-radius: 8px;
       padding: 5px 10px;
       font-size: 13px;
-      box-shadow: 0 2px 5px rgba(15,17,17,.15);
+      box-shadow: 0 2px 5px rgba(15, 17, 17, .15);
       cursor: pointer;
       outline: none;
     }
@@ -444,7 +513,7 @@
       justify-content: center;
       gap: 6px;
       margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgba(213,217,217,.5);
+      box-shadow: 0 2px 5px rgba(213, 217, 217, .5);
       transition: all 0.15s;
     }
 
@@ -453,7 +522,10 @@
       border-color: #fcd200;
       color: #0f1111;
     }
-    .btn-cart:hover { background: var(--amz-yellow-hover); }
+
+    .btn-cart:hover {
+      background: var(--amz-yellow-hover);
+    }
 
     .btn-buynow {
       background: var(--amz-orange);
@@ -461,7 +533,10 @@
       color: #0f1111;
       font-weight: 700;
     }
-    .btn-buynow:hover { background: var(--amz-orange-hover); }
+
+    .btn-buynow:hover {
+      background: var(--amz-orange-hover);
+    }
 
     .secure-tx {
       font-size: 12px;
@@ -478,8 +553,15 @@
       border-collapse: collapse;
       margin-top: 8px;
     }
-    .seller-table td { padding: 2px 0; }
-    .seller-table td:first-child { color: var(--amz-text-secondary); width: 85px; }
+
+    .seller-table td {
+      padding: 2px 0;
+    }
+
+    .seller-table td:first-child {
+      color: var(--amz-text-secondary);
+      width: 85px;
+    }
 
     /* =========================================================
        MODAL: ZERO-FEE UPI GATEWAY PAYMENT CHECKOUT
@@ -495,7 +577,10 @@
       justify-content: center;
       padding: 16px;
     }
-    .modal-overlay.active { display: flex; }
+
+    .modal-overlay.active {
+      display: flex;
+    }
 
     .modal-box {
       background: #ffffff;
@@ -504,7 +589,7 @@
       max-width: 480px;
       max-height: 92vh;
       overflow-y: auto;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
       position: relative;
     }
 
@@ -517,7 +602,12 @@
       justify-content: space-between;
       border-radius: 12px 12px 0 0;
     }
-    .modal-head h3 { font-size: 16px; font-weight: 700; }
+
+    .modal-head h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
     .modal-close {
       background: none;
       border: none;
@@ -527,7 +617,9 @@
       line-height: 1;
     }
 
-    .modal-body { padding: 20px; }
+    .modal-body {
+      padding: 20px;
+    }
 
     .upi-order-summary {
       background: #f8fafc;
@@ -549,12 +641,14 @@
       margin-bottom: 16px;
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
     }
+
     .dynamic-amount-val {
       font-size: 34px;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: -0.02em;
     }
+
     .dynamic-amount-sub {
       font-size: 12px;
       opacity: 0.95;
@@ -569,7 +663,12 @@
       display: inline-block;
       margin: 8px auto;
     }
-    .qr-frame img { display: block; width: 190px; height: 190px; }
+
+    .qr-frame img {
+      display: block;
+      width: 190px;
+      height: 190px;
+    }
 
     .poll-pulse-bar {
       background: #f0fdf4;
@@ -592,10 +691,22 @@
       background: #16a34a;
       animation: pulse 1.5s infinite;
     }
+
     @keyframes pulse {
-      0% { transform: scale(0.9); opacity: 0.8; }
-      50% { transform: scale(1.3); opacity: 1; }
-      100% { transform: scale(0.9); opacity: 0.8; }
+      0% {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
     }
 
     .app-links-grid {
@@ -604,6 +715,7 @@
       gap: 8px;
       margin: 12px 0;
     }
+
     .app-link-btn {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -616,7 +728,11 @@
       text-decoration: none;
       display: block;
     }
-    .app-link-btn:hover { background: #e2e8f0; text-decoration: none; }
+
+    .app-link-btn:hover {
+      background: #e2e8f0;
+      text-decoration: none;
+    }
 
     .sandbox-box {
       margin-top: 16px;
@@ -625,8 +741,18 @@
       border-radius: 8px;
       padding: 12px;
     }
-    .sandbox-box h4 { font-size: 12px; color: #b45309; margin-bottom: 4px; }
-    .sandbox-box p { font-size: 11px; color: #78350f; margin-bottom: 8px; }
+
+    .sandbox-box h4 {
+      font-size: 12px;
+      color: #b45309;
+      margin-bottom: 4px;
+    }
+
+    .sandbox-box p {
+      font-size: 11px;
+      color: #78350f;
+      margin-bottom: 8px;
+    }
 
     .btn-sim {
       background: #f59e0b;
@@ -639,15 +765,29 @@
       cursor: pointer;
       width: 100%;
     }
-    .btn-sim:hover { background: #d97706; }
+
+    .btn-sim:hover {
+      background: #d97706;
+    }
 
     @media (max-width: 1024px) {
-      .pdp-layout { grid-template-columns: 1fr; }
-      .gallery-column { position: static; justify-content: center; }
-      .buybox { position: static; margin-top: 20px; }
+      .pdp-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-column {
+        position: static;
+        justify-content: center;
+      }
+
+      .buybox {
+        position: static;
+        margin-top: 20px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Amazon Header -->
@@ -658,7 +798,10 @@
     </a>
 
     <div class="deliver-to">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
       <div>
         <span>Delivering to Bangalore 560001</span>
         <strong>Update location</strong>
@@ -673,7 +816,10 @@
       </select>
       <input type="text" class="search-input" value="Sony WH-1000XM5 Noise Canceling Headphones" />
       <button class="search-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
       </button>
     </div>
 
@@ -694,7 +840,11 @@
     </div>
 
     <div style="display:flex; align-items:center; gap: 4px; font-size: 14px; font-weight: 700; cursor: pointer;">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="8" cy="21" r="1" />
+        <circle cx="19" cy="21" r="1" />
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+      </svg>
       <span style="color:#febd69;">0</span>
     </div>
   </header>
@@ -716,9 +866,9 @@
   <main class="pdp-container">
     <!-- Breadcrumb -->
     <div class="breadcrumbs">
-      <a href="#">Electronics</a> &rsaquo; 
-      <a href="#">Headphones, Earbuds & Accessories</a> &rsaquo; 
-      <a href="#">Over-Ear Headphones</a> &rsaquo; 
+      <a href="#">Electronics</a> &rsaquo;
+      <a href="#">Headphones, Earbuds & Accessories</a> &rsaquo;
+      <a href="#">Over-Ear Headphones</a> &rsaquo;
       <span>Sony WH-1000XM5</span>
     </div>
 
@@ -741,7 +891,8 @@
       <div class="detail-column">
         <a href="#" class="brand-link">Visit the Sony Store</a>
         <h1 class="product-title">
-          Sony WH-1000XM5 Wireless Industry Leading Active Noise Canceling Headphones, 8 Mics for Clear Calling, 30Hr Battery, Alexa Built-in (Midnight Black)
+          Sony WH-1000XM5 Wireless Industry Leading Active Noise Canceling Headphones, 8 Mics for Clear Calling, 30Hr
+          Battery, Alexa Built-in (Midnight Black)
         </h1>
 
         <div class="rating-row">
@@ -762,7 +913,8 @@
           <span class="deal-badge">Limited time deal</span>
           <div class="main-price-row">
             <span class="discount-percent">-52%</span>
-            <span class="price-number"><span class="currency-symbol">₹</span>1,299<span style="font-size:16px;">.00</span></span>
+            <span class="price-number"><span class="currency-symbol">₹</span>1,299<span
+                style="font-size:16px;">.00</span></span>
           </div>
           <div class="mrp-row">
             M.R.P.: <span style="text-decoration: line-through;">₹2,699.00</span>
@@ -789,9 +941,12 @@
         <div class="about-list">
           <h3>About this item</h3>
           <ul>
-            <li><strong>Industry-leading Noise Cancellation:</strong> Two processors and 8 microphones for unprecedented noise cancellation.</li>
-            <li><strong>Magnificent Sound:</strong> Engineered to perfection with the new Integrated Processor V1 and custom 30mm driver unit.</li>
-            <li><strong>Crystal Clear Hands-Free Calling:</strong> 4 beamforming microphones, precise voice pickup technology, and advanced audio signal processing.</li>
+            <li><strong>Industry-leading Noise Cancellation:</strong> Two processors and 8 microphones for unprecedented
+              noise cancellation.</li>
+            <li><strong>Magnificent Sound:</strong> Engineered to perfection with the new Integrated Processor V1 and
+              custom 30mm driver unit.</li>
+            <li><strong>Crystal Clear Hands-Free Calling:</strong> 4 beamforming microphones, precise voice pickup
+              technology, and advanced audio signal processing.</li>
             <li><strong>Ultra-Long 30-Hour Battery Life:</strong> 3 min quick charging gives 3 hours playback.</li>
             <li><strong>Multipoint Connection:</strong> Quickly switch between two devices with Bluetooth 5.2.</li>
           </ul>
@@ -801,7 +956,7 @@
       <!-- 3. Right Buy Box Column -->
       <div class="buybox">
         <div class="bb-price">₹1,299.00</div>
-        
+
         <div class="delivery-info">
           <span>FREE delivery <strong>Tomorrow, 11 AM</strong>. Order within <strong>3 hrs 15 mins</strong>.</span>
           <div style="margin-top: 4px; color:#565959;">📍 Delivering to Bangalore 560001</div>
@@ -818,17 +973,17 @@
           </select>
         </div>
 
-        <!-- Action Buttons -->
-        <button class="btn-amz btn-cart" onclick="alert('Item added to cart!')">
-          Add to Cart
-        </button>
+
 
         <button class="btn-amz btn-buynow" id="buyNowBtn" onclick="initiateBuyNow()">
           Buy Now
         </button>
 
         <div class="secure-tx">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
           <span>Secure transaction</span>
         </div>
 
@@ -1026,7 +1181,7 @@
             clearInterval(countdownTimer);
             renderSuccess(json.data);
           }
-        } catch(e) {}
+        } catch (e) { }
       }, 2500);
     }
 
@@ -1057,7 +1212,7 @@
     function renderSuccess(order) {
       try {
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-      } catch(e) {}
+      } catch (e) { }
 
       document.getElementById('modalTitle').textContent = "Order Placed Successfully! 🎉";
       const body = document.getElementById('modalBody');
@@ -1100,4 +1255,5 @@
     }
   </script>
 </body>
+
 </html>
