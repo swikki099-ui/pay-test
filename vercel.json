@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/create", "destination": "/api/create.js" },
+    { "source": "/api/status/:orderId", "destination": "/api/status.js?orderId=:orderId" },
+    { "source": "/order-success", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
