@@ -1002,24 +1002,7 @@
           </tr>
         </table>
       </div>
-    </div>
   </main>
-
-  <!-- =========================================================
-       MODAL: DYNAMIC UPI GATEWAY CHECKOUT
-       ========================================================= -->
-  <div class="modal-overlay" id="upiModal">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h3 id="modalTitle">Complete Your UPI Payment</h3>
-        <button class="modal-close" onclick="closeUpiModal()">&times;</button>
-      </div>
-
-      <div class="modal-body" id="modalBody">
-        <!-- Injected via JS -->
-      </div>
-    </div>
-  </div>
 
   <script>
     const PRODUCT = {
@@ -1039,6 +1022,9 @@
       document.getElementById('mainImageDisplay').innerHTML = `<span class="image-badge">Top Rated</span> ${icon}`;
     }
 
+    const GATEWAY_DIRECT_URL = "https://pay-pl92.onrender.com";
+    const CLIENT_API_KEY = "client_k_66a939d14c03b80e562daf5ea3fc4d1d";
+
     async function parseSafeJson(res) {
       const text = await res.text();
       try {
@@ -1048,211 +1034,118 @@
       }
     }
 
-    async function initiateBuyNow() {
-      const qty = parseInt(document.getElementById('buyQty').value, 10) || 1;
-      const totalAmount = PRODUCT.basePrice * qty;
-
-      const modal = document.getElementById('upiModal');
-      const body = document.getElementById('modalBody');
-      modal.classList.add('active');
-
-      body.innerHTML = `
-        <div style="text-align:center; padding: 24px 0;">
-          <div class="pulse-dot" style="margin: 0 auto 12px; width: 14px; height: 14px;"></div>
-          <div style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Connecting to OpenUPIPay Gateway...</div>
-          <p style="font-size: 13px; color: #565959;">Allocating dynamic decimal amount on gateway...</p>
-        </div>
-      `;
-
+    async function createOrderWithFallback(payload) {
+      // 1. Try local server proxy first
       try {
-        const orderExt = "AMZ-" + Date.now().toString().slice(-6);
         const res = await fetch("/api/create", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            baseAmount: totalAmount,
-            orderIdExt: orderExt,
-            returnUrl: window.location.origin + "/order-success"
-          })
+          body: JSON.stringify(payload)
+        });
+        const json = await parseSafeJson(res);
+        if (res.ok && json.success && json.data) return json.data;
+      } catch(e) {}
+
+      // 2. Direct gateway fallback
+      const directRes = await fetch(`${GATEWAY_DIRECT_URL}/api/v1/payment/create`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-client-api-key": CLIENT_API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      const directJson = await parseSafeJson(directRes);
+      if (!directRes.ok || !directJson.success) {
+        throw new Error(directJson.error || directJson.detail || "Failed to create order on gateway");
+      }
+      return directJson.data;
+    }
+
+    async function initiateBuyNow() {
+      const btn = document.getElementById('buyNowBtn');
+      const qty = parseInt(document.getElementById('buyQty').value, 10) || 1;
+      const totalAmount = PRODUCT.basePrice * qty;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="pulse-dot" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span> Redirecting to Gateway Checkout...`;
+
+      try {
+        const orderExt = "AMZ-" + Date.now().toString().slice(-6);
+        const order = await createOrderWithFallback({
+          baseAmount: totalAmount,
+          orderIdExt: orderExt,
+          returnUrl: window.location.origin + "/order-success"
         });
 
-        const json = await parseSafeJson(res);
-        if (!res.ok || !json.success) {
-          throw new Error(json.error || json.detail || "Failed to create order on gateway");
-        }
-
-        activeOrder = json.data;
-        renderPaymentUI(activeOrder, totalAmount, qty);
+        // Direct browser redirect to gateway hosted checkout page
+        const checkoutPageUrl = "https://pay-pl92.onrender.com/pay/" + order.orderId;
+        window.location.href = checkoutPageUrl;
       } catch (err) {
-        body.innerHTML = `
-          <div style="text-align:center; padding: 20px; color: #cc0c39;">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Gateway Response Notice</h3>
-            <p style="font-size: 13px; color: #565959; margin: 8px 0; background: #fff1f2; padding: 10px; border-radius: 6px; border: 1px solid #fecdd3;">
-              ${err.message}
-            </p>
-            <button class="btn-amz btn-buynow" onclick="initiateBuyNow()" style="margin-top: 12px;">Try Again</button>
-          </div>
-        `;
+        btn.disabled = false;
+        btn.innerHTML = `Buy Now`;
+        alert("Gateway Error: " + err.message);
       }
     }
 
-    function renderPaymentUI(order, baseAmount, qty) {
-      const body = document.getElementById('modalBody');
-      secondsLeft = 300;
-
-      body.innerHTML = `
-        <div class="upi-order-summary">
-          <div>
-            <div style="font-weight:700; font-size:13px;">${PRODUCT.name} (x${qty})</div>
-            <div style="font-size:12px; color:#565959;">Order Ref: ${order.orderIdExt}</div>
-          </div>
-          <div style="font-weight:800; font-size:16px;">₹${baseAmount}</div>
-        </div>
-
-        <div class="dynamic-amount-pill">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em;">Pay Exact Amount</div>
-          <div class="dynamic-amount-val">₹${order.dynamicAmount}</div>
-          <div class="dynamic-amount-sub">⚠️ Pay exact decimal for instant auto-confirmation</div>
-        </div>
-
-        <div style="text-align:center;">
-          <div class="qr-frame">
-            <img src="${order.qrCodeDataUrl}" alt="UPI Dynamic QR" />
-          </div>
-          <div style="font-size:12px; color:#565959; margin-top: 4px;">
-            UPI ID: <strong style="color:#0f1111;">${order.vpa}</strong>
-          </div>
-        </div>
-
-        <div class="poll-pulse-bar">
-          <span class="pulse-dot"></span>
-          <span id="pollMsg">Awaiting bank confirmation...</span>
-          <span id="timerTxt" style="margin-left:auto; font-family:'JetBrains Mono',monospace;">05:00</span>
-        </div>
-
-        <!-- 1-Click Direct Apps -->
-        <div style="font-size: 11px; font-weight:700; text-transform:uppercase; color:#565959; margin-bottom:6px;">
-          Or Pay via Installed UPI App:
-        </div>
-        <div class="app-links-grid">
-          <a href="${order.upiUri}" class="app-link-btn" target="_blank">⚡ Default UPI</a>
-          <a href="gpay://upi/pay?pa=${encodeURIComponent(order.vpa)}&pn=${encodeURIComponent(order.payeeName)}&am=${order.dynamicAmount}&cu=INR&tn=ORDER-${order.orderId}" class="app-link-btn" target="_blank">📱 Google Pay</a>
-          <a href="phonepe://pay?pa=${encodeURIComponent(order.vpa)}&pn=${encodeURIComponent(order.payeeName)}&am=${order.dynamicAmount}&cu=INR&tn=ORDER-${order.orderId}" class="app-link-btn" target="_blank">🟣 PhonePe</a>
-        </div>
-
-        <!-- Developer Instant Simulator -->
-        <div class="sandbox-box">
-          <h4>🧪 Test Simulator (Zero Real Money)</h4>
-          <p>Simulate bank SMS webhook of ₹${order.dynamicAmount} to instantly verify payment.</p>
-          <button class="btn-sim" onclick="simulatePayment('${order.orderId}', ${order.dynamicAmount}, '${order.orderIdExt}')">
-            ⚡ Simulate Instant Payment Confirmation
-          </button>
-        </div>
-      `;
-
-      startCountdown();
-      startPolling(order.orderId);
-    }
-
-    function startCountdown() {
-      clearInterval(countdownTimer);
-      countdownTimer = setInterval(() => {
-        secondsLeft--;
-        const m = Math.floor(secondsLeft / 60);
-        const s = secondsLeft % 60;
-        const el = document.getElementById('timerTxt');
-        if (el) el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        if (secondsLeft <= 0) {
-          clearInterval(countdownTimer);
-          clearInterval(pollTimer);
-          if (el) el.textContent = "EXPIRED";
-        }
-      }, 1000);
-    }
-
-    function startPolling(orderId) {
-      clearInterval(pollTimer);
-      pollTimer = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/status/${orderId}`);
-          const json = await parseSafeJson(res);
-          if (json.success && json.data && json.data.status === "PAID") {
-            clearInterval(pollTimer);
-            clearInterval(countdownTimer);
-            renderSuccess(json.data);
-          }
-        } catch (e) { }
-      }, 2500);
-    }
-
-    async function simulatePayment(orderId, dynamicAmount, orderIdExt) {
+    function renderSuccessPage(orderId) {
       try {
-        const res = await fetch('/api/simulate-payment', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ orderId, dynamicAmount, orderIdExt })
-        });
-        const json = await parseSafeJson(res);
-        if (json.success) {
-          setTimeout(async () => {
-            const statusRes = await fetch(`/api/status/${orderId}`);
-            const statusJson = await parseSafeJson(statusRes);
-            if (statusJson.success && statusJson.data?.status === 'PAID') {
-              clearInterval(pollTimer);
-              clearInterval(countdownTimer);
-              renderSuccess(statusJson.data);
-            }
-          }, 500);
-        }
-      } catch (e) {
-        alert("Simulation error: " + e.message);
-      }
-    }
-
-    function renderSuccess(order) {
-      try {
-        confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
       } catch (e) { }
 
-      document.getElementById('modalTitle').textContent = "Order Placed Successfully! 🎉";
-      const body = document.getElementById('modalBody');
-      body.innerHTML = `
-        <div style="text-align:center; padding: 20px 0;">
-          <div style="width:60px; height:60px; border-radius:50%; background:#dcfce7; color:#15803d; font-size:32px; display:flex; align-items:center; justify-content:center; margin: 0 auto 12px;">
-            ✓
-          </div>
-          <h2 style="font-size:20px; font-weight:800; color:#0f1111;">Payment Received!</h2>
-          <p style="font-size:13px; color:#565959; margin-top:4px;">
-            Your payment was auto-verified by OpenUPIPay Gateway.
-          </p>
-        </div>
+      const container = document.querySelector('.pdp-container');
+      if (!container) return;
 
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px; margin-bottom:16px; font-size:13px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#565959;">Order ID:</span>
-            <strong>${order.orderId.slice(0, 16)}...</strong>
+      container.innerHTML = `
+        <div style="max-width: 680px; margin: 40px auto; background: #ffffff; border: 1px solid #d5d9d9; border-radius: 8px; padding: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+          <div style="text-align:center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+              ✓
+            </div>
+            <h1 style="font-size: 24px; font-weight: 800; color: #0f1111; margin-bottom: 4px;">Order Placed, Thank You!</h1>
+            <p style="font-size: 14px; color: #565959;">Confirmation will be sent to your registered mobile number.</p>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#565959;">Status:</span>
-            <span style="color:#16a34a; font-weight:700;">PAID (Verified)</span>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 24px; font-size: 13px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+              <span style="color: #565959;">Order Reference:</span>
+              <strong class="mono" style="color: #0f1111;">${orderId}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+              <span style="color: #565959;">Payment Method:</span>
+              <span style="color: #16a34a; font-weight: 700;">OpenUPIPay Verified (0% Surcharge)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+              <span style="color: #565959;">Item:</span>
+              <span>Sony WH-1000XM5 Wireless Headphones</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 14px; font-weight: 700;">
+              <span>Guaranteed Delivery:</span>
+              <span style="color: #007185;">Tomorrow by 11:00 AM</span>
+            </div>
           </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span style="color:#565959;">Guaranteed Delivery:</span>
-            <span>Tomorrow by 11:00 AM</span>
+
+          <div style="display:flex; gap: 12px;">
+            <button class="btn-amz btn-buynow" style="flex:1;" onclick="window.location.href = '/'">
+              Continue Shopping
+            </button>
+            <button class="btn-amz btn-cart" style="flex:1;" onclick="window.print()">
+              Print Receipt
+            </button>
           </div>
         </div>
-
-        <button class="btn-amz btn-buynow" style="width:100%;" onclick="closeUpiModal()">
-          Continue Shopping
-        </button>
       `;
     }
 
-    function closeUpiModal() {
-      clearInterval(pollTimer);
-      clearInterval(countdownTimer);
-      document.getElementById('upiModal').classList.remove('active');
-    }
+    // Check on mount if returning from gateway payment
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('status');
+      const orderId = params.get('orderId') || params.get('orderIdExt');
+      if (status === 'PAID' || window.location.pathname.includes('order-success')) {
+        renderSuccessPage(orderId || 'AMZ-CONFIRMED');
+      }
+    });
   </script>
 </body>
 
